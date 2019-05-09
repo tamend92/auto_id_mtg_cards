@@ -8,7 +8,9 @@ class PreprocessorImg:
     def __init__(self, img_path):
         self.mtg_img = cv2.imread(img_path)
         self.mtg_just_card_thres = self._get_just_card_thres()
+        self.thresh_set_im_name = 'thresh_set_img.jpg'
         self._find_set_image()
+        #self._calculate_all_correlations()
         # cv2.imwrite('blah_img.jpg', self.mtg_just_card)
 
     def _get_just_card_thres(self):
@@ -32,6 +34,8 @@ class PreprocessorImg:
         We could use edges to find the set image(?)
         :return:
         """
+        
+
         height, width = self.mtg_just_card_thres.shape
         height_into_parts_for_cropping = 20
         width_into_parts_for_cropping = 20
@@ -42,8 +46,22 @@ class PreprocessorImg:
         crop_set_img = self.mtg_just_card_thres[start_height:start_height + round(set_image_height/1.2),
                        start_width:start_width + round((set_image_width *2))]
         crop_set_img = Util.flip_threshold_values(crop_set_img)
-        cv2.imwrite('thres_set_img.jpg', crop_set_img)
+        cv2.imwrite(self.thresh_set_im_name, crop_set_img)
         cv2.waitKey()
+
+    def _calculate_all_correlations(self):
+        '''
+        Calculates cross correlations across all possible set images
+        Deploys cv2's matchTemplate with CV_TM_CCORR_NORMED 
+        '''
+        cv_method = 'cv2.TM_CCOR_NORMED'
+        target_image = cv2.imread(self.thresh_set_im_name)
+
+        ti_height, ti_width, channels = target_image.shape
+
+        print(ti_height)
+        print(ti_width)
+        print(channels)
 
 if __name__ == '__main__':
     pre_process = PreprocessorImg(os.path.join('..', 'mtg_test_photos', 'mtg_1.jpg'))
